@@ -1,3 +1,4 @@
+import { API_URL } from '../../config/api.config';
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -240,7 +241,7 @@ export class CajaComponent implements OnInit, OnDestroy {
           return;
         }
   
-        this.http.post<any>('/api/pagos/crear', {
+        this.http.post<any>(`${API_URL}/pagos/crear`, {
           pedidoId: pedidoCreado.id,
           total: Number(pedidoCreado.total || this.totalPedido)
         }).subscribe({

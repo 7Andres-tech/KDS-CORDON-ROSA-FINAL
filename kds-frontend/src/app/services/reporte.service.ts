@@ -13,9 +13,9 @@ export class ReporteService {
   constructor(private http: HttpClient) {}
 
   enviarReporteAdmin(fechaInicio: string, fechaFin: string): Observable<any> {
-    return this.http.post<any>(`${this.url}/enviar-admin`, {
-      fechaInicio,
-      fechaFin
-    });
+    return this.http.post<any>(
+      `${this.url}/enviar-admin?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`,
+      {}
+    );
   }
 }
