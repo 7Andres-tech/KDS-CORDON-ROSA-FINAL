@@ -1,1 +1,1 @@
-export const API_URL = '/api';
+export const API_URL = 'https://kds-cordon-rosa-final.onrender.com/api';
