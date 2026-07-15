@@ -320,17 +320,18 @@ export class CajaComponent implements OnInit, OnDestroy {
   
     this.enviandoReporte = true;
   
-    this.reporteService.enviarReporteAdmin(
-      this.fechaInicioReporte,
-      this.fechaFinReporte
-    ).subscribe({
+    const url = `${API_URL}/reportes/enviar-admin?fechaInicio=${this.fechaInicioReporte}&fechaFin=${this.fechaFinReporte}`;
+  
+    console.log('URL REPORTE:', url);
+  
+    this.http.post<any>(url, {}).subscribe({
       next: (data) => {
-        console.log('Reporte enviado:', data);
+        console.log('Reporte enviado correctamente:', data);
         alert('Reporte enviado al administrador por WhatsApp');
         this.enviandoReporte = false;
       },
       error: (error) => {
-        console.error('Error enviando reporte:', error);
+        console.error('ERROR REPORTE COMPLETO:', error);
         alert('No se pudo enviar el reporte');
         this.enviandoReporte = false;
       }
