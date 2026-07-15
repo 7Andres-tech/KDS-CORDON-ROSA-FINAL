@@ -312,19 +312,20 @@ export class CajaComponent implements OnInit, OnDestroy {
       alert('Selecciona fecha inicio y fecha fin para generar el reporte');
       return;
     }
-
+  
     if (this.fechaFinReporte < this.fechaInicioReporte) {
       alert('La fecha fin no puede ser menor que la fecha inicio');
       return;
     }
-
+  
     this.enviandoReporte = true;
-
+  
     this.reporteService.enviarReporteAdmin(
       this.fechaInicioReporte,
       this.fechaFinReporte
     ).subscribe({
-      next: () => {
+      next: (data) => {
+        console.log('Reporte enviado:', data);
         alert('Reporte enviado al administrador por WhatsApp');
         this.enviandoReporte = false;
       },
