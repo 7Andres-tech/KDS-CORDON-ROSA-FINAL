@@ -1,6 +1,5 @@
 package com.cordonylarosa.kds.controller;
 
-import com.cordonylarosa.kds.dto.ReporteFechaRequest;
 import com.cordonylarosa.kds.dto.ReporteResponse;
 import com.cordonylarosa.kds.service.NotificacionService;
 import com.cordonylarosa.kds.service.ReportePdfService;
@@ -16,6 +15,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/reportes")
+@CrossOrigin(origins = "*")
 public class ReporteController {
 
     private final ReportePdfService reportePdfService;
@@ -31,15 +31,19 @@ public class ReporteController {
     }
 
     @PostMapping("/enviar-admin")
-    public ResponseEntity<?> enviarReporteAdmin(@RequestBody(required = false) ReporteFechaRequest request) {
+    public ResponseEntity<?> enviarReporteAdmin(
+            @RequestParam("fechaInicio") String fechaInicioTexto,
+            @RequestParam("fechaFin") String fechaFinTexto
+    ) {
         try {
-            LocalDate fechaInicio = request != null && request.fechaInicio() != null
-                    ? request.fechaInicio()
-                    : LocalDate.now();
+            LocalDate fechaInicio = LocalDate.parse(fechaInicioTexto);
+            LocalDate fechaFin = LocalDate.parse(fechaFinTexto);
 
-            LocalDate fechaFin = request != null && request.fechaFin() != null
-                    ? request.fechaFin()
-                    : fechaInicio;
+            System.out.println("====================================");
+            System.out.println("REPORTE SOLICITADO POR FECHAS");
+            System.out.println("Fecha inicio: " + fechaInicio);
+            System.out.println("Fecha fin: " + fechaFin);
+            System.out.println("====================================");
 
             if (fechaFin.isBefore(fechaInicio)) {
                 return ResponseEntity.badRequest().body(Map.of(
@@ -64,6 +68,8 @@ public class ReporteController {
             ));
 
         } catch (Exception e) {
+            e.printStackTrace();
+
             return ResponseEntity.badRequest().body(Map.of(
                     "error", e.getMessage()
             ));
