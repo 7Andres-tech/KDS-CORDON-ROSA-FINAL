@@ -1,11 +1,11 @@
 package com.cordonylarosa.kds.controller;
 
-import com.cordonylarosa.kds.service.MercadoPagoService;
 import com.cordonylarosa.kds.service.PedidoService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
-import java.math.BigDecimal;
 import java.util.Map;
 
 @RestController
@@ -13,31 +13,38 @@ import java.util.Map;
 @CrossOrigin(origins = "*")
 public class PagoController {
 
-    private final MercadoPagoService mercadoPagoService;
     private final PedidoService pedidoService;
+    private final RestTemplate restTemplate = new RestTemplate();
 
-    public PagoController(MercadoPagoService mercadoPagoService, PedidoService pedidoService) {
-        this.mercadoPagoService = mercadoPagoService;
+    @Value("${pagos.service.url}")
+    private String pagosServiceUrl;
+
+    public PagoController(PedidoService pedidoService) {
         this.pedidoService = pedidoService;
     }
 
     @PostMapping("/crear")
     public ResponseEntity<?> crearPago(@RequestBody Map<String, Object> body) {
         try {
-            Long pedidoId = Long.valueOf(body.get("pedidoId").toString());
-            BigDecimal total = new BigDecimal(body.get("total").toString());
+            System.out.println("====================================");
+            System.out.println("SOLICITANDO PAGO AL MICROSERVICIO RAILWAY");
+            System.out.println("URL microservicio: " + pagosServiceUrl + "/crear");
+            System.out.println("BODY: " + body);
+            System.out.println("====================================");
 
-            String urlPago = mercadoPagoService.crearPago(pedidoId, total);
+            ResponseEntity<Map> response = restTemplate.postForEntity(
+                    pagosServiceUrl + "/crear",
+                    body,
+                    Map.class
+            );
 
-            return ResponseEntity.ok(Map.of(
-                    "url", urlPago
-            ));
+            return ResponseEntity.ok(response.getBody());
 
         } catch (Exception e) {
             e.printStackTrace();
 
             return ResponseEntity.badRequest().body(Map.of(
-                    "error", e.getMessage()
+                    "error", "Error llamando al microservicio de pagos: " + e.getMessage()
             ));
         }
     }
