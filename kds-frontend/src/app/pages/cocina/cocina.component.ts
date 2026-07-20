@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { PedidoService } from '../../services/pedido.service';
+import { API_URL } from '../../config/api.config';
 
 @Component({
   selector: 'app-cocina',
@@ -150,7 +151,7 @@ export class CocinaComponent implements OnInit, OnDestroy {
       return 'Sin hora';
     }
 
-    const fechaPedido = new Date(createdAt);
+    const fechaPedido = new Date(this.obtenerFechaBackendMillis(createdAt));
     const ahora = new Date();
 
     const diferenciaMs = ahora.getTime() - fechaPedido.getTime();
@@ -170,7 +171,7 @@ export class CocinaComponent implements OnInit, OnDestroy {
   actualizarContadores(): void {
     this.pedidos = this.pedidos.map(pedido => {
       if (pedido.estado === 'EN_PREPARACION' && pedido.inicioPreparacion) {
-        const inicio = new Date(pedido.inicioPreparacion).getTime();
+        const inicio = this.obtenerFechaBackendMillis(pedido.inicioPreparacion);
         const ahora = new Date().getTime();
 
         const segundosPreparacion = Math.max(
@@ -217,6 +218,20 @@ export class CocinaComponent implements OnInit, OnDestroy {
     return `${minutosTexto}:${segundosTexto}`;
   }
 
+  obtenerFechaBackendMillis(fecha: string): number {
+    if (!fecha) {
+      return 0;
+    }
+  
+    const tieneZonaHoraria =
+      fecha.endsWith('Z') ||
+      /[+-]\d{2}:\d{2}$/.test(fecha);
+  
+    const fechaNormalizada = tieneZonaHoraria ? fecha : `${fecha}Z`;
+  
+    return new Date(fechaNormalizada).getTime();
+  }
+
   estaAtrasado(pedido: any): boolean {
     return pedido.estado === 'EN_PREPARACION' && pedido.atrasado === true;
   }
@@ -229,14 +244,17 @@ export class CocinaComponent implements OnInit, OnDestroy {
           return;
         }
 
-        fetch('/logout', {
-          method: 'POST'
-        }).then(response => {
-          if (response.ok) {
-            localStorage.removeItem('usuarioKds');
-            window.location.href = '/login';
-          }
-        });
+        const backendUrl = API_URL.replace('/api', '');
+
+fetch(`${backendUrl}/logout`, {
+  method: 'POST'
+}).then(response => {
+  localStorage.removeItem('usuarioKds');
+  window.location.href = '/login';
+}).catch(() => {
+  localStorage.removeItem('usuarioKds');
+  window.location.href = '/login';
+});
       },
       error: (error) => {
         console.error(error);

@@ -346,14 +346,17 @@ export class CajaComponent implements OnInit, OnDestroy {
           return;
         }
 
-        fetch('/logout', {
-          method: 'POST'
-        }).then(response => {
-          if (response.ok) {
-            localStorage.removeItem('usuarioKds');
-            window.location.href = '/login';
-          }
-        });
+        const backendUrl = API_URL.replace('/api', '');
+
+fetch(`${backendUrl}/logout`, {
+  method: 'POST'
+}).then(response => {
+  localStorage.removeItem('usuarioKds');
+  window.location.href = '/login';
+}).catch(() => {
+  localStorage.removeItem('usuarioKds');
+  window.location.href = '/login';
+});
       },
       error: (error) => {
         console.error(error);
