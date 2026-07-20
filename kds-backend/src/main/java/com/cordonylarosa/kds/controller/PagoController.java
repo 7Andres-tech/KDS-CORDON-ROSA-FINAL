@@ -1,5 +1,8 @@
 package com.cordonylarosa.kds.controller;
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import com.cordonylarosa.kds.service.PedidoService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -24,30 +27,35 @@ public class PagoController {
     }
 
     @PostMapping("/crear")
-    public ResponseEntity<?> crearPago(@RequestBody Map<String, Object> body) {
-        try {
-            System.out.println("====================================");
-            System.out.println("SOLICITANDO PAGO AL MICROSERVICIO RAILWAY");
-            System.out.println("URL microservicio: " + pagosServiceUrl + "/crear");
-            System.out.println("BODY: " + body);
-            System.out.println("====================================");
+public ResponseEntity<?> crearPago(@RequestBody Map<String, Object> body) {
+    try {
+        System.out.println("====================================");
+        System.out.println("SOLICITANDO PAGO AL MICROSERVICIO RAILWAY");
+        System.out.println("URL microservicio: " + pagosServiceUrl + "/crear");
+        System.out.println("BODY: " + body);
+        System.out.println("====================================");
 
-            ResponseEntity<Map> response = restTemplate.postForEntity(
-                    pagosServiceUrl + "/crear",
-                    body,
-                    Map.class
-            );
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
-            return ResponseEntity.ok(response.getBody());
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        ResponseEntity<Map> response = restTemplate.postForEntity(
+                pagosServiceUrl + "/crear",
+                request,
+                Map.class
+        );
 
-            return ResponseEntity.badRequest().body(Map.of(
-                    "error", "Error llamando al microservicio de pagos: " + e.getMessage()
-            ));
-        }
+        return ResponseEntity.ok(response.getBody());
+
+    } catch (Exception e) {
+        e.printStackTrace();
+
+        return ResponseEntity.badRequest().body(Map.of(
+                "error", "Error llamando al microservicio de pagos: " + e.getMessage()
+        ));
     }
+}
 
     @PostMapping("/webhook")
     public ResponseEntity<?> recibirWebhook(
